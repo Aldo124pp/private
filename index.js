@@ -12892,7 +12892,7 @@ bot.command("encchina", async (ctx) => {
 });
 
 // ========== COMMAND: ENC (LOW/MEDIUM/HIGH) ==========
-bot.onText(/^\/enc(?:\s+(low|medium|high))?$/i, async (msg, match) => {
+bot.command(/^\/enc(?:\s+(low|medium|high))?$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -12960,7 +12960,7 @@ bot.onText(/^\/enc(?:\s+(low|medium|high))?$/i, async (msg, match) => {
 });
 
 // ========== COMMAND: ENCEVAL ==========
-bot.onText(/^\/enceval(?:\s+(low|medium|high))?$/i, async (msg, match) => {
+bot.command(/^\/enceval(?:\s+(low|medium|high))?$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13041,7 +13041,7 @@ bot.onText(/^\/enceval(?:\s+(low|medium|high))?$/i, async (msg, match) => {
 });
 
 // ========== COMMAND: ENCCHINA ==========
-bot.onText(/^\/encchina$/i, async (msg) => {
+bot.command(/^\/encchina$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13108,7 +13108,7 @@ bot.onText(/^\/encchina$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCARAB ==========
-bot.onText(/^\/encarab$/i, async (msg) => {
+bot.command(/^\/encarab$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13175,7 +13175,7 @@ bot.onText(/^\/encarab$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCJAPAN ==========
-bot.onText(/^\/encjapan$/i, async (msg) => {
+bot.command(/^\/encjapan$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13242,7 +13242,7 @@ bot.onText(/^\/encjapan$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCJAPANXARAB ==========
-bot.onText(/^\/encjapanxarab$/i, async (msg) => {
+bot.command(/^\/encjapanxarab$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13309,7 +13309,7 @@ bot.onText(/^\/encjapanxarab$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCNEW ==========
-bot.onText(/^\/encnew$/i, async (msg) => {
+bot.command(/^\/encnew$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13376,7 +13376,7 @@ bot.onText(/^\/encnew$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCINVISHARD ==========
-bot.onText(/^\/encinvishard$/i, async (msg) => {
+bot.command(/^\/encinvishard$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13443,7 +13443,7 @@ bot.onText(/^\/encinvishard$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCINVIS ==========
-bot.onText(/^\/encinvis$/i, async (msg) => {
+bot.command(/^\/encinvis$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13510,7 +13510,7 @@ bot.onText(/^\/encinvis$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCSTEALTH ==========
-bot.onText(/^\/encstealth$/i, async (msg) => {
+bot.command(/^\/encstealth$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13577,7 +13577,7 @@ bot.onText(/^\/encstealth$/i, async (msg) => {
 });
 
 // ========== COMMAND: CUSTOMENC ==========
-bot.onText(/^\/customenc (.+)$/i, async (msg, match) => {
+bot.command(/^\/customenc (.+)$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13649,7 +13649,7 @@ bot.onText(/^\/customenc (.+)$/i, async (msg, match) => {
 });
 
 // ========== COMMAND: ENCSTRONG ==========
-bot.onText(/^\/encstrong$/i, async (msg) => {
+bot.command(/^\/encstrong$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13716,7 +13716,7 @@ bot.onText(/^\/encstrong$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCBIG ==========
-bot.onText(/^\/encbig (\d+)$/i, async (msg, match) => {
+bot.command(/^\/encbig (\d+)$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13794,7 +13794,7 @@ bot.onText(/^\/encbig (\d+)$/i, async (msg, match) => {
 });
 
 // ========== COMMAND: ENCULTRA ==========
-bot.onText(/^\/encultra$/i, async (msg) => {
+bot.command(/^\/encultra$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13861,7 +13861,7 @@ bot.onText(/^\/encultra$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCMAX ==========
-bot.onText(/^\/encmax (\d+)$/i, async (msg, match) => {
+bot.command(/^\/encmax (\d+)$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13930,7 +13930,7 @@ bot.onText(/^\/encmax (\d+)$/i, async (msg, match) => {
 });
 
 // ========== COMMAND: ENCQUANTUM ==========
-bot.onText(/^\/encquantum$/i, async (msg) => {
+bot.command(/^\/encquantum$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -13989,7 +13989,7 @@ bot.onText(/^\/encquantum$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCX ==========
-bot.onText(/^\/encx$/i, async (msg) => {
+bot.command(/^\/encx$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -14078,7 +14078,7 @@ bot.onText(/^\/encx$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCNOVA ==========
-bot.onText(/^\/encnova$/i, async (msg) => {
+bot.command(/^\/encnova$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -14145,7 +14145,7 @@ bot.onText(/^\/encnova$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCNEBULA ==========
-bot.onText(/^\/encnebula$/i, async (msg) => {
+bot.command(/^\/encnebula$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -14212,7 +14212,7 @@ bot.onText(/^\/encnebula$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCSIU ==========
-bot.onText(/^\/encsiu$/i, async (msg) => {
+bot.command(/^\/encsiu$/i, async (msg) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
@@ -14279,7 +14279,7 @@ bot.onText(/^\/encsiu$/i, async (msg) => {
 });
 
 // ========== COMMAND: ENCLOCKED ==========
-bot.onText(/^\/enclocked (\d+)$/i, async (msg, match) => {
+bot.command(/^\/enclocked (\d+)$/i, async (msg, match) => {
     const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
     
     try {
