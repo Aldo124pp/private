@@ -3471,7 +3471,7 @@ bot.action("donate", async (ctx) => {
 // -------------------- [ Command : chat owner ] -------------------- \\
 bot.action("menu_owner_contact", async (ctx) => {
   await editMenuMessage(ctx,
-    `<blockquote><b>📞「 𝗖𝗢𝗡𝗧𝗔𝗖𝗧 𝗢𝗪𝗡𝗘𝗥 𝗕𝗢𝗧 」</b>
+    `<blockquote><b>📞「 𝗖𝗢𝗡𝗧𝗔𝗖𝗧 𝗢𝗪𝗡𝗘𝗥 𝗕𝗢𝗧 」</b></blockquote>
      <b>━━━━━━━━━━━━━━━━━━━━━━❍</b>
      <b>𝖭𝖺𝗆𝖾:</b> ${config.Botname}
      <b>𝖳𝖾𝗅𝖾𝗀𝗋𝖺𝗆:</b> ${config.NameOwner}
