@@ -982,6 +982,522 @@ const validateFile = (ctx, allowedExtensions = ['.js']) => {
    return doc;
 };
 
+// ========== FUNGSI OBFUSCATION QUANTUM ==========
+const obfuscateQuantum = async (fileContent) => {
+    const generateTimeBasedIdentifier = () => {
+        const timeStamp = new Date().getTime().toString().slice(-5);
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$#@&*";
+        let identifier = "qV_";
+        for (let i = 0; i < 7; i++) {
+            identifier += chars[Math.floor((parseInt(timeStamp[i % 5]) + i * 2) % chars.length)];
+        }
+        return identifier;
+    };
+
+    const currentMilliseconds = new Date().getMilliseconds();
+    const phantomCode = currentMilliseconds % 3 === 0 ? `if(Math.random()>0.999)console.log('PhantomTrigger');` : "";
+
+    try {
+        const obfuscated = await JsConfuser.obfuscate(fileContent + phantomCode, {
+            target: "node",
+            compact: true,
+            renameVariables: true,
+            renameGlobals: true,
+            identifierGenerator: generateTimeBasedIdentifier,
+            stringCompression: true,
+            stringConcealing: false,
+            stringEncoding: true,
+            controlFlowFlattening: 0.85,
+            flatten: true,
+            shuffle: true,
+            rgf: true,
+            opaquePredicates: { count: 8, complexity: 5 },
+            dispatcher: true,
+            globalConcealing: true,
+            lock: {
+                selfDefending: true,
+                antiDebug: (code) => `if(typeof debugger!=='undefined'||(typeof process!=='undefined'&&process.env.NODE_ENV==='debug'))throw new Error('Debugging disabled');${code}`,
+                integrity: true,
+                tamperProtection: (code) => `if(!((function(){return eval('1+1')===2;})()))throw new Error('Tamper detected');${code}`
+            },
+            duplicateLiteralsRemoval: true
+        });
+        
+        let obfuscatedCode = obfuscated.code || obfuscated;
+        if (typeof obfuscatedCode !== "string") {
+            throw new Error("Hasil obfuscation bukan string");
+        }
+        
+        const key = currentMilliseconds % 256;
+        obfuscatedCode = `(function(){let k=${key};return function(c){return c.split('').map((x,i)=>String.fromCharCode(x.charCodeAt(0)^(k+(i%16)))).join('');}('${obfuscatedCode}');})()`;
+        return obfuscatedCode;
+    } catch (error) {
+        throw new Error(`Gagal obfuscate: ${error.message}`);
+    }
+};
+
+function getInvisObfuscationConfig() {
+    const generateInvisName = () => {
+        const length = Math.floor(Math.random() * 4) + 3;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += "_";
+        }
+        return name + Math.random().toString(36).substring(2, 5);
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateInvisName,
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.75,
+        dispatcher: true,
+        globalConcealing: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getStealthObfuscationConfig() {
+    const generateStealthName = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const length = Math.floor(Math.random() * 3) + 1;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return name;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateStealthName,
+        stringEncoding: true,
+        stringSplitting: 0.75,
+        controlFlowFlattening: 0.75,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.2,
+        opaquePredicates: 0.75,
+        dispatcher: true,
+        globalConcealing: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getMandarinObfuscationConfig() {
+    const mandarinChars = [
+        "龙", "虎", "风", "云", "山", "河", "天", "地", "雷", "电",
+        "火", "水", "木", "金", "土", "星", "月", "日", "光", "影",
+        "峰", "泉", "林", "海", "雪", "霜", "雾", "冰", "焰", "石"
+    ];
+
+    const generateMandarinName = () => {
+        const length = Math.floor(Math.random() * 4) + 3;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += mandarinChars[Math.floor(Math.random() * mandarinChars.length)];
+        }
+        return name;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateMandarinName,
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.95,
+        dispatcher: true,
+        globalConcealing: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getArabObfuscationConfig() {
+    const arabicChars = [
+        "أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
+        "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف",
+        "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"
+    ];
+
+    const generateArabicName = () => {
+        const length = Math.floor(Math.random() * 4) + 3;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += arabicChars[Math.floor(Math.random() * arabicChars.length)];
+        }
+        return name;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateArabicName,
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.95,
+        dispatcher: true,
+        globalConcealing: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getJapanObfuscationConfig() {
+    const japaneseChars = [
+        "あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ",
+        "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と",
+        "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ",
+        "ま", "み", "む", "め", "も", "や", "ゆ", "よ",
+        "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"
+    ];
+
+    const generateJapaneseName = () => {
+        const length = Math.floor(Math.random() * 4) + 3;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += japaneseChars[Math.floor(Math.random() * japaneseChars.length)];
+        }
+        return name;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateJapaneseName,
+        stringEncoding: true,
+        stringSplitting: 0.9,
+        controlFlowFlattening: 0.9,
+        flatten: true,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.25,
+        calculator: true,
+        opaquePredicates: 0.85,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getJapanxArabObfuscationConfig() {
+    const japaneseXArabChars = [
+        "あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ",
+        "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と",
+        "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ",
+        "ま", "み", "む", "め", "も", "や", "ゆ", "よ","أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
+        "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف",
+        "ق", "ك", "ل", "م", "ن", "ه", "و", "ي","ら", "り", "る", "れ", "ろ", "わ", "を", "ん" 
+    ];
+
+    const generateJapaneseXArabName = () => {
+        const length = Math.floor(Math.random() * 4) + 3;
+        let name = "";
+        for (let i = 0; i < length; i++) {
+            name += japaneseXArabChars[Math.floor(Math.random() * japaneseXArabChars.length)];
+        }
+        return name;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateJapaneseXArabName,
+        stringCompression: true,
+        stringConcealing: true,
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        flatten: true,
+        shuffle: true,
+        rgf: false,
+        dispatcher: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.9,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getNebulaObfuscationConfig() {
+    const generateNebulaName = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const prefix = "NX";
+        let randomPart = "";
+        for (let i = 0; i < 4; i++) {
+            randomPart += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return `${prefix}${randomPart}`;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateNebulaName,
+        stringCompression: true,
+        stringConcealing: false,
+        stringEncoding: true,
+        stringSplitting: false,
+        controlFlowFlattening: 0.75,
+        flatten: true,
+        shuffle: true,
+        rgf: true,
+        deadCode: 0.2,
+        opaquePredicates: 0.75,
+        dispatcher: true,
+        globalConcealing: true,
+        objectExtraction: true,
+        duplicateLiteralsRemoval: 0.75,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getNovaObfuscationConfig() {
+    const generateNovaName = () => {
+        const prefixes = ["nZ", "nova", "nx"];
+        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const hash = crypto.createHash('sha256')
+            .update(crypto.randomBytes(8))
+            .digest('hex')
+            .slice(0, 6);
+        const suffix = Math.random().toString(36).slice(2, 5);
+        return `${randomPrefix}_${hash}_${suffix}`;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateNovaName,
+        stringCompression: true,
+        stringConcealing: true,
+        stringEncoding: true,
+        stringSplitting: false,
+        controlFlowFlattening: 0.5,
+        flatten: true,
+        shuffle: true,
+        rgf: false,
+        deadCode: 0.1,
+        opaquePredicates: 0.5,
+        dispatcher: true,
+        globalConcealing: true,
+        objectExtraction: true,
+        duplicateLiteralsRemoval: 0.75,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getUltraObfuscationConfig() {
+    const generateUltraName = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyz";
+        const numbers = "0123456789";
+        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+        const randomChar = chars[Math.floor(Math.random() * chars.length)];
+        return `z${randomNum}${randomChar}${Math.random().toString(36).substring(2, 6)}`;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateUltraName,
+        stringCompression: true,
+        stringEncoding: true,
+        stringSplitting: 0.9,
+        controlFlowFlattening: 0.9,
+        flatten: true,
+        shuffle: true,
+        rgf: true,
+        deadCode: 0.3,
+        opaquePredicates: 0.9,
+        dispatcher: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getSiuCalcrickObfuscationConfig() {
+    const generateSiuCalcrickName = () => {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let randomPart = "";
+        for (let i = 0; i < 6; i++) {
+            randomPart += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return `气CalceKarik和SiuSiu无${randomPart}`;
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateSiuCalcrickName,
+        stringCompression: true,
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        shuffle: true,
+        rgf: false,
+        flatten: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.9,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getXObfuscationConfig() {
+    const generateXName = () => {
+        return "xZ" + crypto.randomUUID().slice(0, 4);
+    };
+
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: generateXName,
+        stringCompression: true,
+        stringConcealing: true,
+        stringEncoding: true,
+        stringSplitting: false,
+        controlFlowFlattening: 0.5,
+        flatten: true,
+        shuffle: true,
+        rgf: true,
+        deadCode: false,
+        opaquePredicates: 0.5,
+        dispatcher: true,
+        globalConcealing: true,
+        objectExtraction: true,
+        duplicateLiteralsRemoval: 0.75,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+function getNewObfuscationConfig() {
+    return {
+        target: "node",
+        compact: true,
+        renameVariables: true,
+        renameGlobals: true,
+        identifierGenerator: "mangled",
+        stringEncoding: true,
+        stringSplitting: 0.95,
+        controlFlowFlattening: 0.95,
+        shuffle: true,
+        duplicateLiteralsRemoval: 0.75,
+        deadCode: 0.3,
+        calculator: true,
+        opaquePredicates: 0.95,
+        dispatcher: true,
+        globalConcealing: true,
+        lock: {
+            selfDefending: true,
+            antiDebug: true,
+            integrity: true,
+            tamperProtection: true
+        }
+    };
+}
+
+// ========== FUNGSI ENCODE INVISIBLE ==========
+function encodeInvisible(text) {
+    try {
+        const base64 = Buffer.from(text).toString('base64');
+        return '\u200B' + base64;
+    } catch (error) {
+        return text;
+    }
+}
+
 const createTempFile = (content, prefix, extension) => {
     const tempDir = path.join(currentDir, 'tmp');
     if (!fs.existsSync(tempDir)) {
@@ -1545,728 +2061,6 @@ async function clearserveranduser(ctx, server) {
 
 
 
-// ========== FUNGSI OBFUSCATION QUANTUM ==========
-const obfuscateQuantum = async (fileContent) => {
-    const generateTimeBasedIdentifier = () => {
-        const timeStamp = new Date().getTime().toString().slice(-5);
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$#@&*";
-        let identifier = "qV_";
-        for (let i = 0; i < 7; i++) {
-            identifier += chars[Math.floor((parseInt(timeStamp[i % 5]) + i * 2) % chars.length)];
-        }
-        return identifier;
-    };
-
-    const currentMilliseconds = new Date().getMilliseconds();
-    const phantomCode = currentMilliseconds % 3 === 0 ? `if(Math.random()>0.999)console.log('PhantomTrigger');` : "";
-
-    try {
-        const obfuscated = await JsConfuser.obfuscate(fileContent + phantomCode, {
-            target: "node",
-            compact: true,
-            renameVariables: true,
-            renameGlobals: true,
-            identifierGenerator: generateTimeBasedIdentifier,
-            stringCompression: true,
-            stringConcealing: false,
-            stringEncoding: true,
-            controlFlowFlattening: 0.85,
-            flatten: true,
-            shuffle: true,
-            rgf: true,
-            opaquePredicates: { count: 8, complexity: 5 },
-            dispatcher: true,
-            globalConcealing: true,
-            lock: {
-                selfDefending: true,
-                antiDebug: (code) => `if(typeof debugger!=='undefined'||(typeof process!=='undefined'&&process.env.NODE_ENV==='debug'))throw new Error('Debugging disabled');${code}`,
-                integrity: true,
-                tamperProtection: (code) => `if(!((function(){return eval('1+1')===2;})()))throw new Error('Tamper detected');${code}`
-            },
-            duplicateLiteralsRemoval: true
-        });
-        
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-        
-        const key = currentMilliseconds % 256;
-        obfuscatedCode = `(function(){let k=${key};return function(c){return c.split('').map((x,i)=>String.fromCharCode(x.charCodeAt(0)^(k+(i%16)))).join('');}('${obfuscatedCode}');})()`;
-        return obfuscatedCode;
-    } catch (error) {
-        throw new Error(`Gagal obfuscate: ${error.message}`);
-    }
-};
-
-// ========== FUNGSI TIME LOCKED ==========
-const obfuscateTimeLocked = async (fileContent, days) => {
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + parseInt(days));
-    const expiryTimestamp = expiryDate.getTime();
-    
-    try {
-        const obfuscated = await JsConfuser.obfuscate(
-            `(function(){const expiry=${expiryTimestamp};if(new Date().getTime()>expiry){throw new Error('Script has expired after ${days} days');}${fileContent}})();`,
-            {
-                target: "node",
-                compact: true,
-                renameVariables: true,
-                renameGlobals: true,
-                identifierGenerator: "randomized",
-                stringCompression: true,
-                stringConcealing: true,
-                stringEncoding: true,
-                controlFlowFlattening: 0.75,
-                flatten: true,
-                shuffle: true,
-                rgf: false,
-                opaquePredicates: { count: 6, complexity: 4 },
-                dispatcher: true,
-                globalConcealing: true,
-                lock: {
-                    selfDefending: true,
-                    antiDebug: (code) => `if(typeof debugger!=='undefined'||process.env.NODE_ENV==='debug')throw new Error('Debugging disabled');${code}`,
-                    integrity: true,
-                    tamperProtection: (code) => `if(!((function(){return eval('1+1')===2;})()))throw new Error('Tamper detected');${code}`
-                },
-                duplicateLiteralsRemoval: true
-            }
-        );
-        
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-        return obfuscatedCode;
-    } catch (error) {
-        throw new Error(`Gagal obfuscate: ${error.message}`);
-    }
-};
-
-// ========== FUNGSI CONFIG OBFUSCATION ==========
-function getObfuscationConfig(level = "high") {
-    const config = {
-        target: "node",
-        compact: true,
-        hexadecimalNumbers: true,
-        controlFlowFlattening: level === "high" ? 0.95 : level === "medium" ? 0.75 : 0.5,
-        deadCode: level === "high" ? 0.3 : level === "medium" ? 0.2 : 0.1,
-        dispatcher: true,
-        duplicateLiteralsRemoval: 0.75,
-        flatten: true,
-        globalConcealing: true,
-        identifierGenerator: "zeroWidth",
-        minify: true,
-        movedDeclarations: true,
-        objectExtraction: true,
-        opaquePredicates: level === "high" ? 0.95 : level === "medium" ? 0.75 : 0.5,
-        renameVariables: true,
-        renameGlobals: true,
-        stringConcealing: true,
-        stringCompression: true,
-        stringEncoding: true,
-        stringSplitting: level === "high" ? 0.95 : level === "medium" ? 0.75 : 0.5,
-        rgf: false,
-    };
-    
-    if (level === "high") {
-        config.lock = {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        };
-    }
-    
-    return config;
-}
-
-function getStrongObfuscationConfig() {
-    return {
-        target: "node",
-        calculator: true,
-        compact: true,
-        hexadecimalNumbers: true,
-        controlFlowFlattening: 0.75,
-        deadCode: 0.2,
-        dispatcher: true,
-        duplicateLiteralsRemoval: 0.75,
-        flatten: true,
-        globalConcealing: true,
-        identifierGenerator: "zeroWidth",
-        minify: true,
-        movedDeclarations: true,
-        objectExtraction: true,
-        opaquePredicates: 0.75,
-        renameVariables: true,
-        renameGlobals: true,
-        stringConcealing: true,
-        stringCompression: true,
-        stringEncoding: true,
-        stringSplitting: 0.75,
-        rgf: false,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getInvisObfuscationConfig() {
-    const generateInvisName = () => {
-        const length = Math.floor(Math.random() * 4) + 3;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += "_";
-        }
-        return name + Math.random().toString(36).substring(2, 5);
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateInvisName,
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.75,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getStealthObfuscationConfig() {
-    const generateStealthName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const length = Math.floor(Math.random() * 3) + 1;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateStealthName,
-        stringEncoding: true,
-        stringSplitting: 0.75,
-        controlFlowFlattening: 0.75,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.2,
-        opaquePredicates: 0.75,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getCustomObfuscationConfig(customName) {
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: () => customName + Math.random().toString(36).substring(2, 6),
-        stringEncoding: true,
-        stringSplitting: 0.75,
-        controlFlowFlattening: 0.75,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.2,
-        opaquePredicates: 0.75,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getMandarinObfuscationConfig() {
-    const mandarinChars = [
-        "龙", "虎", "风", "云", "山", "河", "天", "地", "雷", "电",
-        "火", "水", "木", "金", "土", "星", "月", "日", "光", "影",
-        "峰", "泉", "林", "海", "雪", "霜", "雾", "冰", "焰", "石"
-    ];
-
-    const generateMandarinName = () => {
-        const length = Math.floor(Math.random() * 4) + 3;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += mandarinChars[Math.floor(Math.random() * mandarinChars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateMandarinName,
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.95,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getArabObfuscationConfig() {
-    const arabicChars = [
-        "أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
-        "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف",
-        "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"
-    ];
-
-    const generateArabicName = () => {
-        const length = Math.floor(Math.random() * 4) + 3;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += arabicChars[Math.floor(Math.random() * arabicChars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateArabicName,
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.95,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getJapanObfuscationConfig() {
-    const japaneseChars = [
-        "あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ",
-        "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と",
-        "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ",
-        "ま", "み", "む", "め", "も", "や", "ゆ", "よ",
-        "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"
-    ];
-
-    const generateJapaneseName = () => {
-        const length = Math.floor(Math.random() * 4) + 3;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += japaneseChars[Math.floor(Math.random() * japaneseChars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateJapaneseName,
-        stringEncoding: true,
-        stringSplitting: 0.9,
-        controlFlowFlattening: 0.9,
-        flatten: true,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.25,
-        calculator: true,
-        opaquePredicates: 0.85,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getJapanxArabObfuscationConfig() {
-    const japaneseXArabChars = [
-        "あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ",
-        "さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と",
-        "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ",
-        "ま", "み", "む", "め", "も", "や", "ゆ", "よ","أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر",
-        "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف",
-        "ق", "ك", "ل", "م", "ن", "ه", "و", "ي","ら", "り", "る", "れ", "ろ", "わ", "を", "ん" 
-    ];
-
-    const generateJapaneseXArabName = () => {
-        const length = Math.floor(Math.random() * 4) + 3;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += japaneseXArabChars[Math.floor(Math.random() * japaneseXArabChars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateJapaneseXArabName,
-        stringCompression: true,
-        stringConcealing: true,
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        flatten: true,
-        shuffle: true,
-        rgf: false,
-        dispatcher: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.9,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getNebulaObfuscationConfig() {
-    const generateNebulaName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const prefix = "NX";
-        let randomPart = "";
-        for (let i = 0; i < 4; i++) {
-            randomPart += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return `${prefix}${randomPart}`;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateNebulaName,
-        stringCompression: true,
-        stringConcealing: false,
-        stringEncoding: true,
-        stringSplitting: false,
-        controlFlowFlattening: 0.75,
-        flatten: true,
-        shuffle: true,
-        rgf: true,
-        deadCode: 0.2,
-        opaquePredicates: 0.75,
-        dispatcher: true,
-        globalConcealing: true,
-        objectExtraction: true,
-        duplicateLiteralsRemoval: 0.75,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getNovaObfuscationConfig() {
-    const generateNovaName = () => {
-        const prefixes = ["nZ", "nova", "nx"];
-        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const hash = crypto.createHash('sha256')
-            .update(crypto.randomBytes(8))
-            .digest('hex')
-            .slice(0, 6);
-        const suffix = Math.random().toString(36).slice(2, 5);
-        return `${randomPrefix}_${hash}_${suffix}`;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateNovaName,
-        stringCompression: true,
-        stringConcealing: true,
-        stringEncoding: true,
-        stringSplitting: false,
-        controlFlowFlattening: 0.5,
-        flatten: true,
-        shuffle: true,
-        rgf: false,
-        deadCode: 0.1,
-        opaquePredicates: 0.5,
-        dispatcher: true,
-        globalConcealing: true,
-        objectExtraction: true,
-        duplicateLiteralsRemoval: 0.75,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getUltraObfuscationConfig() {
-    const generateUltraName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyz";
-        const numbers = "0123456789";
-        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-        const randomChar = chars[Math.floor(Math.random() * chars.length)];
-        return `z${randomNum}${randomChar}${Math.random().toString(36).substring(2, 6)}`;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateUltraName,
-        stringCompression: true,
-        stringEncoding: true,
-        stringSplitting: 0.9,
-        controlFlowFlattening: 0.9,
-        flatten: true,
-        shuffle: true,
-        rgf: true,
-        deadCode: 0.3,
-        opaquePredicates: 0.9,
-        dispatcher: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getMaxObfuscationConfig(intensity) {
-    const generateMaxName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const length = Math.floor(Math.random() * 4) + 4;
-        let name = "mX";
-        for (let i = 0; i < length; i++) {
-            name += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return name;
-    };
-
-    const flatteningLevel = intensity / 10;
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateMaxName,
-        stringCompression: true,
-        stringConcealing: true,
-        stringEncoding: true,
-        stringSplitting: flatteningLevel,
-        controlFlowFlattening: flatteningLevel,
-        flatten: true,
-        shuffle: true,
-        rgf: true,
-        calculator: true,
-        deadCode: flatteningLevel * 0.4,
-        opaquePredicates: flatteningLevel,
-        dispatcher: true,
-        globalConcealing: true,
-        objectExtraction: true,
-        duplicateLiteralsRemoval: false,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getSiuCalcrickObfuscationConfig() {
-    const generateSiuCalcrickName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let randomPart = "";
-        for (let i = 0; i < 6; i++) {
-            randomPart += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return `气CalceKarik和SiuSiu无${randomPart}`;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateSiuCalcrickName,
-        stringCompression: true,
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        shuffle: true,
-        rgf: false,
-        flatten: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.9,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getXObfuscationConfig() {
-    const generateXName = () => {
-        return "xZ" + crypto.randomUUID().slice(0, 4);
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateXName,
-        stringCompression: true,
-        stringConcealing: true,
-        stringEncoding: true,
-        stringSplitting: false,
-        controlFlowFlattening: 0.5,
-        flatten: true,
-        shuffle: true,
-        rgf: true,
-        deadCode: false,
-        opaquePredicates: 0.5,
-        dispatcher: true,
-        globalConcealing: true,
-        objectExtraction: true,
-        duplicateLiteralsRemoval: 0.75,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getNewObfuscationConfig() {
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: "mangled",
-        stringEncoding: true,
-        stringSplitting: 0.95,
-        controlFlowFlattening: 0.95,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.3,
-        calculator: true,
-        opaquePredicates: 0.95,
-        dispatcher: true,
-        globalConcealing: true,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
-
-function getBigObfuscationConfig() {
-    const generateBigName = () => {
-        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const length = Math.floor(Math.random() * 5) + 5;
-        let name = "";
-        for (let i = 0; i < length; i++) {
-            name += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return name;
-    };
-
-    return {
-        target: "node",
-        compact: true,
-        renameVariables: true,
-        renameGlobals: true,
-        identifierGenerator: generateBigName,
-        stringEncoding: true,
-        stringSplitting: 0.75,
-        controlFlowFlattening: 0.75,
-        shuffle: true,
-        duplicateLiteralsRemoval: 0.75,
-        deadCode: 0.2,
-        opaquePredicates: 0.75,
-        lock: {
-            selfDefending: true,
-            antiDebug: true,
-            integrity: true,
-            tamperProtection: true
-        }
-    };
-}
 
 // -------------------- [ get all server offline ] -------------------- \\
 async function getserver(domain, apikey, capikey) {
@@ -5021,10 +4815,28 @@ const menuTemplates = [
     {
         callback: "Obf",
         title: "𝖮𝖻𝖿𝗎𝗌𝖼𝖺𝗍𝗂𝗈𝗇",
-        commands: `<b>-# /encrypt » Encrypt file</b>
-<b>-# /encinvis » Invisible encrypt</b>
-<b>-# /encryptpy » Python encrypt</b>
+        commands: `
+<blockquote><b>Encrypt JavaScript</b></blockquote>
+<b>-# /encx » Encrypt</b>
+<b>-# /encrypt » Encrypt file</b>
+<b>-# /encinvisv1 » Invisible encrypt</b>
+<b>-# /encinvisv2 » Invisible hard encrypt</b>
 <b>-# /encchina » Chinese encrypt</b>
+<b>-# /encjapan » Japan encrypt</b>
+<b>-# /encarab» Arab encrypt</b>
+<b>-# /encjapanxarab » Japan X Arab encrypt</b>
+<b>-# /encquantum » Quantum encrypt</b>
+<b>-# /encstealth » Stealth encrypt</b>
+<b>-# /encstrong » Strong encrypt</b>
+<b>-# /encnew » New encrypt</b>
+<b>-# /encnova » Nova encrypt</b>
+<b>-# /encnebula » Nebula encrypt</b>
+<b>-# /encsiu » Siu encrypt</b>
+
+<blockquote><b>Encrypt Python</b></blockquote>
+<b>-# /encryptpy » Python encrypt</b>
+
+<blockquote><b>Encrypt HTML</b></blockquote>
 <b>-# /encrypthtml » HTML encrypt</b>`
     },
     {
@@ -12642,7 +12454,7 @@ except Exception as e:
 });
 
 // -------------------- Command: encinvis --------------------
-bot.command("encinvis", async (ctx) => {
+bot.command("encinvisv2", async (ctx) => {
     try {
         if (!await checkUserLimit(ctx, "encinvis")) return;
 
@@ -12822,20 +12634,18 @@ bot.command("encrypt", async (ctx) => {
     }
 });
 
-// -------------------- Command: encchina --------------------
+// ========== COMMAND: ENCCHINA ==========
 bot.command("encchina", async (ctx) => {
     try {
         console.log(`Perintah diterima: /encchina dari: ${ctx.from.username || ctx.from.id}`);
 
-        // Check Limit
         if (!await checkUserLimit(ctx, "encchina")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        await ctx.reply("⚡️ Processing hard code encryption...");
+        await ctx.reply("⚡️ Processing China style encryption...");
 
-        // Download 
         const fileLink = await ctx.telegram.getFileLink(doc.file_id);
         const response = await axios.get(fileLink.href, { responseType: "text" });
         let codeString = response.data;
@@ -12844,237 +12654,17 @@ bot.command("encchina", async (ctx) => {
             throw new Error("File bukan dalam format string yang valid.");
         }
 
-        let obfuscatedCode = await JsConfuser.obfuscate(codeString, {
-            target: "node",
-            compact: true,
-            controlFlowFlattening: 0.8,
-            deadCode: 0.3,
-            dispatcher: true,
-            duplicateLiteralsRemoval: 0.7,
-            globalConcealing: true,
-            minify: true,
-            movedDeclarations: true,
-            objectExtraction: true,
-            renameVariables: true,
-            renameGlobals: true,
-            stringEncoding: true,
-            stringSplitting: 0.5,
-            stringConcealing: true,
-            stringCompression: true,
-            opaquePredicates: 0.9,
-            calculator: true,
-            hexadecimalNumbers: true,
-            shuffle: true,
-            identifierGenerator: () => "高宝座AldzyIsHere齐高宝座Mbut齐高宝座" + Math.random().toString(36).substring(7),
-        });
-
-        if (typeof obfuscatedCode === 'object' && obfuscatedCode.code) {
-            obfuscatedCode = obfuscatedCode.code;
+        try {
+            new Function(codeString);
+        } catch (syntaxError) {
+            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
+
+        let obfuscated = await JsConfuser.obfuscate(codeString, getMandarinObfuscationConfig());
+        let obfuscatedCode = obfuscated.code || obfuscated;
 
         if (typeof obfuscatedCode !== 'string') {
             throw new Error("Hasil enkripsi bukan dalam format string.");
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, 'encrypted-china', '.js');
-
-        await ctx.replyWithDocument(
-            { source: filePath, filename: `encrypted_${doc.file_name}` },
-            { caption: `✅ Encryption Successful\n• Type: Hard Code\n\nBy @ReyValdz` }
-        );
-
-        cleanupTempFile(filePath);
-
-    } catch (err) {
-        console.error(chalk.red(`❌ Error encchina: ${err.message}`));
-        await ctx.reply(`❌ An error occurred: ${err.message}`);
-    }
-});
-
-// ========== COMMAND: ENC (LOW/MEDIUM/HIGH) ==========
-bot.command(/^\/enc(?:\s+(low|medium|high))?$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "enc")) return;
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const level = match[1] || "high";
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi (${level})...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan level ${level}`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getObfuscationConfig(level)
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, `enc-${level}`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `enc-${level}-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Encryption Successful\n• Level: ${level}\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ Enc (${level}) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error enc: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: ENCEVAL ==========
-bot.command(/^\/enceval(?:\s+(low|medium|high))?$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "enceval")) return;
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const level = match[1] || "high";
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi dengan eval (${level})...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Mengevaluasi kode: ${doc.file_name}`));
-        
-        let evalResult;
-        try {
-            evalResult = eval(fileContent);
-            if (typeof evalResult === "function") evalResult = "Function detected";
-            else if (evalResult === undefined) evalResult = "No return value";
-            else evalResult = String(evalResult);
-        } catch (evalError) {
-            evalResult = `Evaluation error: ${evalError.message}`;
-        }
-
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan level ${level}`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getObfuscationConfig(level)
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        await ctx.reply(`📊 *Hasil Evaluasi:*\n\`\`\`\n${evalResult}\n\`\`\``, { parse_mode: "Markdown" });
-
-        const { filePath } = createTempFile(obfuscatedCode, `eval-enc-${level}`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `eval-enc-${level}-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Encryption with Eval Successful\n• Level: ${level}\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncEval (${level}) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error enceval: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: ENCCHINA ==========
-bot.command(/^\/encchina$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "encchina")) return;
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi China Style...");
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan China Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getMandarinObfuscationConfig()
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
         }
 
         try {
@@ -13086,62 +12676,49 @@ bot.command(/^\/encchina$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'china-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `china-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ China Style Encryption Successful\n• Type: Mandarin Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `china-enc-${doc.file_name}` },
+            { caption: `✅ China Style Encryption Successful\n• Type: Mandarin Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncChina completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encchina: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encchina: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCARAB ==========
-bot.command(/^\/encarab$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encarab", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encarab dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encarab")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Arab Style...");
+        await ctx.reply("⚡️ Processing Arabic style encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Arab Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getArabObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getArabObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13153,62 +12730,49 @@ bot.command(/^\/encarab$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'arab-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `arab-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Arab Style Encryption Successful\n• Type: Arabic Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `arab-enc-${doc.file_name}` },
+            { caption: `✅ Arab Style Encryption Successful\n• Type: Arabic Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncArab completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encarab: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encarab: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCJAPAN ==========
-bot.command(/^\/encjapan$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encjapan", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encjapan dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encjapan")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Japan Style...");
+        await ctx.reply("⚡️ Processing Japan style encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Japan Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getJapanObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getJapanObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13220,62 +12784,49 @@ bot.command(/^\/encjapan$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'japan-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `japan-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Japan Style Encryption Successful\n• Type: Japanese Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `japan-enc-${doc.file_name}` },
+            { caption: `✅ Japan Style Encryption Successful\n• Type: Japanese Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncJapan completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encjapan: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encjapan: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCJAPANXARAB ==========
-bot.command(/^\/encjapanxarab$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encjapanxarab", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encjapanxarab dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encjapanxarab")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Japan X Arab Style...");
+        await ctx.reply("⚡️ Processing Japan X Arab style encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Japan X Arab Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getJapanxArabObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getJapanxArabObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13287,62 +12838,49 @@ bot.command(/^\/encjapanxarab$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'japxab-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `japxab-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Japan X Arab Style Encryption Successful\n• Type: Mixed Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `japxab-enc-${doc.file_name}` },
+            { caption: `✅ Japan X Arab Style Encryption Successful\n• Type: Mixed Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncJapanXArab completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encjapanxarab: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encjapanxarab: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCNEW ==========
-bot.command(/^\/encnew$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encnew", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encnew dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encnew")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi New Style (Advanced Hardened)...");
+        await ctx.reply("⚡️ Processing New style encryption (Advanced Hardened)...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan New Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getNewObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getNewObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13354,129 +12892,49 @@ bot.command(/^\/encnew$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'new-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `new-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ New Style Encryption Successful\n• Type: Advanced Hardened\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `new-enc-${doc.file_name}` },
+            { caption: `✅ New Style Encryption Successful\n• Type: Advanced Hardened\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncNew completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encnew: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: ENCINVISHARD ==========
-bot.command(/^\/encinvishard$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "encinvishard")) return;
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Invis Hard...");
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Strong Obfuscation`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getStrongObfuscationConfig()
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, 'invishard-enc', '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `invishard-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Invis Hard Encryption Successful\n• Type: Strong Obfuscation\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncInvisHard completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encinvishard: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encnew: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCINVIS ==========
-bot.command(/^\/encinvis$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encinvisv1", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encinvis dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encinvis")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Invisible...");
+        await ctx.reply("⚡️ Processing Invisible Version 1 encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Invisible Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getInvisObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getInvisObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13488,62 +12946,49 @@ bot.command(/^\/encinvis$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'invis-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `invis-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Invisible Encryption Successful\n• Type: Zero-Width Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `invis-enc-${doc.file_name}` },
+            { caption: `✅ Invisible Encryption Successful\n• Type: Zero-Width Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncInvis completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encinvis: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encinvis: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCSTEALTH ==========
-bot.command(/^\/encstealth$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encstealth", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encstealth dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encstealth")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Stealth...");
+        await ctx.reply("⚡️ Processing Stealth encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Stealth Style`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getStealthObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getStealthObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13555,134 +13000,49 @@ bot.command(/^\/encstealth$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'stealth-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `stealth-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Stealth Encryption Successful\n• Type: Minimal Identifiers\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `stealth-enc-${doc.file_name}` },
+            { caption: `✅ Stealth Encryption Successful\n• Type: Minimal Identifiers\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncStealth completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encstealth: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: CUSTOMENC ==========
-bot.command(/^\/customenc (.+)$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "customenc")) return;
-
-        const customName = match[1].replace(/[^a-zA-Z0-9_]/g, "");
-        if (!customName) {
-            return ctx.reply("❌ *Error:* Nama kustom harus berisi huruf, angka, atau underscore!", { parse_mode: "Markdown" });
-        }
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi dengan custom name: ${customName}...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan custom name: ${customName}`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getCustomObfuscationConfig(customName)
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, `custom-${customName}`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `custom-${customName}-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Custom Encryption Successful\n• Custom Name: ${customName}\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ CustomEnc (${customName}) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error customenc: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encstealth: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCSTRONG ==========
-bot.command(/^\/encstrong$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encstrong", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encstrong dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encstrong")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Strong (Maximum Security)...");
+        await ctx.reply("⚡️ Processing Strong encryption (Maximum Security)...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Strong Security`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getStrongObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getStrongObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13694,140 +13054,49 @@ bot.command(/^\/encstrong$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'strong-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `strong-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Strong Encryption Successful\n• Type: Maximum Security\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `strong-enc-${doc.file_name}` },
+            { caption: `✅ Strong Encryption Successful\n• Type: Maximum Security\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncStrong completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encstrong: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: ENCBIG ==========
-bot.command(/^\/encbig (\d+)$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "encbig")) return;
-
-        const targetSizeMB = Math.max(1, parseInt(match[1], 10));
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi dengan target ${targetSizeMB}MB...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan target size ${targetSizeMB}MB`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getBigObfuscationConfig()
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        const currentSizeBytes = Buffer.byteLength(obfuscatedCode, "utf8");
-        const targetSizeBytes = targetSizeMB * 1024 * 1024;
-        
-        if (currentSizeBytes < targetSizeBytes) {
-            const paddingSize = targetSizeBytes - currentSizeBytes;
-            const padding = crypto.randomBytes(paddingSize).toString("base64");
-            obfuscatedCode += `\n/* Binary Padding (${paddingSize} bytes) */\n// ${padding}`;
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, `big-${targetSizeMB}mb`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `big-${targetSizeMB}mb-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Big Encryption Successful\n• Target Size: ${targetSizeMB}MB\n• Actual Size: ~${(currentSizeBytes/1024/1024).toFixed(2)}MB\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncBig (${targetSizeMB}MB) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encbig: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encstrong: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCULTRA ==========
-bot.command(/^\/encultra$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encultra", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encultra dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encultra")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Ultra Security...");
+        await ctx.reply("⚡️ Processing Ultra encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Ultra Security`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getUltraObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getUltraObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -13839,124 +13108,49 @@ bot.command(/^\/encultra$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'ultra-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `ultra-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Ultra Encryption Successful\n• Type: Ultra Security\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `ultra-enc-${doc.file_name}` },
+            { caption: `✅ Ultra Encryption Successful\n• Type: Ultra Security\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncUltra completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encultra: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
-
-// ========== COMMAND: ENCMAX ==========
-bot.command(/^\/encmax (\d+)$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "encmax")) return;
-
-        const intensity = Math.min(Math.max(1, parseInt(match[1], 10)), 10);
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi Max dengan intensity ${intensity}/10...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Max intensity ${intensity}/10`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getMaxObfuscationConfig(intensity)
-        );
-
-        let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
-        }
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        const { filePath } = createTempFile(obfuscatedCode, `max-${intensity}`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `max-${intensity}-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Max Encryption Successful\n• Intensity: ${intensity}/10\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncMax (${intensity}) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encmax: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encultra: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCQUANTUM ==========
-bot.command(/^\/encquantum$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encquantum", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encquantum dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encquantum")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Quantum Vortex...");
+        await ctx.reply("⚡️ Processing Quantum Vortex encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Quantum Vortex`));
+        let obfuscatedCode = await obfuscateQuantum(codeString);
 
-        const obfuscatedCode = await obfuscateQuantum(fileContent);
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
+        }
 
         try {
             new Function(obfuscatedCode);
@@ -13967,64 +13161,52 @@ bot.command(/^\/encquantum$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'quantum-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `quantum-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Quantum Encryption Successful\n• Type: Quantum Vortex\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `quantum-enc-${doc.file_name}` },
+            { caption: `✅ Quantum Encryption Successful\n• Type: Quantum Vortex\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncQuantum completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encquantum: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encquantum: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCX ==========
-bot.command(/^\/encx$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encx", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encx dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encx")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi X Invisible...");
+        await ctx.reply("⚡️ Processing X Invisible encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan X Invisible`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getXObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getXObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
+        // Encode with invisible characters
         const encodedInvisible = encodeInvisible(obfuscatedCode);
         const finalCode = `
         (function(){
@@ -14056,62 +13238,49 @@ bot.command(/^\/encx$/i, async (msg) => {
         const { filePath } = createTempFile(finalCode, 'x-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `x-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ X Invisible Encryption Successful\n• Type: X Invisible\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `x-enc-${doc.file_name}` },
+            { caption: `✅ X Invisible Encryption Successful\n• Type: X Invisible\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncX completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encx: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encx: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCNOVA ==========
-bot.command(/^\/encnova$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encnova", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encnova dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encnova")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Nova Dynamic...");
+        await ctx.reply("⚡️ Processing Nova Dynamic encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Nova Dynamic`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getNovaObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getNovaObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -14123,62 +13292,49 @@ bot.command(/^\/encnova$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'nova-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `nova-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Nova Encryption Successful\n• Type: Nova Dynamic\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `nova-enc-${doc.file_name}` },
+            { caption: `✅ Nova Encryption Successful\n• Type: Nova Dynamic\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncNova completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encnova: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encnova: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCNEBULA ==========
-bot.command(/^\/encnebula$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encnebula", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encnebula dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encnebula")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Nebula Storm...");
+        await ctx.reply("⚡️ Processing Nebula Storm encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Nebula Storm`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getNebulaObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getNebulaObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -14190,62 +13346,49 @@ bot.command(/^\/encnebula$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'nebula-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `nebula-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Nebula Encryption Successful\n• Type: Nebula Storm\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `nebula-enc-${doc.file_name}` },
+            { caption: `✅ Nebula Encryption Successful\n• Type: Nebula Storm\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncNebula completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encnebula: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encnebula: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
 // ========== COMMAND: ENCSIU ==========
-bot.command(/^\/encsiu$/i, async (msg) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
+bot.command("encsiu", async (ctx) => {
     try {
+        console.log(`Perintah diterima: /encsiu dari: ${ctx.from.username || ctx.from.id}`);
+
         if (!await checkUserLimit(ctx, "encsiu")) return;
 
         const doc = validateFile(ctx, ['.js']);
         if (!doc) return;
 
-        const progressMessage = await ctx.reply("🔒 Memulai proses enkripsi Siu Calcrick...");
+        await ctx.reply("⚡️ Processing Siu Calcrick encryption...");
 
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
+        const fileLink = await ctx.telegram.getFileLink(doc.file_id);
+        const response = await axios.get(fileLink.href, { responseType: "text" });
+        let codeString = response.data;
 
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
+        if (typeof codeString !== "string") {
+            throw new Error("File bukan dalam format string yang valid.");
+        }
 
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
         try {
-            new Function(fileContent);
+            new Function(codeString);
         } catch (syntaxError) {
             throw new Error(`Kode tidak valid: ${syntaxError.message}`);
         }
 
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Siu Calcrick`));
-
-        const obfuscated = await JsConfuser.obfuscate(
-            fileContent,
-            getSiuCalcrickObfuscationConfig()
-        );
-
+        let obfuscated = await JsConfuser.obfuscate(codeString, getSiuCalcrickObfuscationConfig());
         let obfuscatedCode = obfuscated.code || obfuscated;
-        if (typeof obfuscatedCode !== "string") {
-            throw new Error("Hasil obfuscation bukan string");
+
+        if (typeof obfuscatedCode !== 'string') {
+            throw new Error("Hasil enkripsi bukan dalam format string.");
         }
 
         try {
@@ -14257,92 +13400,18 @@ bot.command(/^\/encsiu$/i, async (msg) => {
         const { filePath } = createTempFile(obfuscatedCode, 'siu-enc', '.js');
 
         await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `siu-enc-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Siu Calcrick Encryption Successful\n• Type: Siu Style\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
+            { source: filePath, filename: `siu-enc-${doc.file_name}` },
+            { caption: `✅ Siu Calcrick Encryption Successful\n• Type: Siu Style\n\nBy @ReyValdz` }
         );
 
         cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncSiu completed for ${msg.from.id}`));
 
-    } catch (error) {
-        console.error(chalk.red(`❌ Error encsiu: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
+    } catch (err) {
+        console.error(chalk.red(`❌ Error encsiu: ${err.message}`));
+        await ctx.reply(`❌ An error occurred: ${err.message}`);
     }
 });
 
-// ========== COMMAND: ENCLOCKED ==========
-bot.command(/^\/enclocked (\d+)$/i, async (msg, match) => {
-    const ctx = { message: msg, reply: bot.sendMessage.bind(bot), telegram: bot.telegram };
-    
-    try {
-        if (!await checkUserLimit(ctx, "enclocked")) return;
-
-        const days = match[1];
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + parseInt(days));
-        const expiryFormatted = expiryDate.toLocaleDateString();
-
-        const doc = validateFile(ctx, ['.js']);
-        if (!doc) return;
-
-        const progressMessage = await ctx.reply(`🔒 Memulai proses enkripsi Time-Locked (${days} hari)...`);
-
-        const fileLink = await bot.telegram.getFileLink(doc.file_id);
-        console.log(chalk.blue(`📥 Mengunduh file: ${doc.file_name}`));
-
-        const response = await fetch(fileLink.href);
-        let fileContent = await response.text();
-
-        console.log(chalk.blue(`✅ Memvalidasi kode: ${doc.file_name}`));
-        try {
-            new Function(fileContent);
-        } catch (syntaxError) {
-            throw new Error(`Kode tidak valid: ${syntaxError.message}`);
-        }
-
-        console.log(chalk.blue(`🔐 Mengenkripsi dengan Time-Locked (${days} hari)`));
-
-        const obfuscatedCode = await obfuscateTimeLocked(fileContent, days);
-
-        try {
-            new Function(obfuscatedCode);
-        } catch (postObfuscationError) {
-            throw new Error(`Hasil obfuscation tidak valid: ${postObfuscationError.message}`);
-        }
-
-        await ctx.reply(`⏰ *Masa aktif:* ${days} hari\n📅 *Kadaluwarsa:* ${expiryFormatted}`, { parse_mode: "Markdown" });
-
-        const { filePath } = createTempFile(obfuscatedCode, `locked-${days}d`, '.js');
-
-        await ctx.replyWithDocument(
-            {
-                source: filePath,
-                filename: `locked-${days}d-${doc.file_name}`,
-            },
-            {
-                caption: `✅ Time-Locked Encryption Successful\n• Days: ${days}\n• Expires: ${expiryFormatted}\n\nBy @ReyValdz`,
-                parse_mode: "Markdown",
-            }
-        );
-
-        cleanupTempFile(filePath);
-        console.log(chalk.green(`✅ EncLocked (${days}d) completed for ${msg.from.id}`));
-
-    } catch (error) {
-        console.error(chalk.red(`❌ Error enclocked: ${error.message}`));
-        await ctx.reply(
-            `❌ Kesalahan: ${error.message || "Tidak diketahui"}\nCoba lagi dengan kode Javascript yang valid!`
-        );
-    }
-});
 // -------------------- [ Command: unmute ] -------------------- \\
 bot.command("unmute", async (ctx) => {
   try {
